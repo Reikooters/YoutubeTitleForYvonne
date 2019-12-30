@@ -29,10 +29,14 @@ namespace YoutubeTitleForYvonne
         [DllImport("user32.dll")]
         public static extern bool IsWindowVisible(IntPtr hwnd);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool IsIconic(IntPtr hWnd);
+
         List<YoutubeWindow> youtubeWindows { get; set; } = new List<YoutubeWindow>();
         BindingSource bindingSource { get; set; } = new BindingSource();
 
-        AutomationElement selectedTabStrip { get; set; }
+        YoutubeWindow selectedYoutubeWindow { get; set; }
         string lastPlayingTitle { get; set; }
         string outputFileName { get; set; }
 
@@ -55,7 +59,7 @@ namespace YoutubeTitleForYvonne
             {
                 YoutubeWindow youtubeWindow = (YoutubeWindow)lstYouTubeWindows.SelectedItem;
 
-                selectedTabStrip = youtubeWindow.elemTabStrip;
+                selectedYoutubeWindow = youtubeWindow.Clone();
 
                 ThreadHelperClass.SetEnabled(this, btnStartStop, true);
 
@@ -65,7 +69,7 @@ namespace YoutubeTitleForYvonne
 
         private void btnStartStop_Click(object sender, EventArgs e)
         {
-            if (selectedTabStrip != null)
+            if (selectedYoutubeWindow.elemTabStrip != null)
             {
                 tmrUpdateCurrentlyPlaying.Enabled = !tmrUpdateCurrentlyPlaying.Enabled;
 
@@ -109,6 +113,10 @@ namespace YoutubeTitleForYvonne
             bgwFindYouTubeWindows.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// This function is based on jasonfah/chrome-tab-titles on GitHub
+        /// https://github.com/jasonfah/chrome-tab-titles/blob/master/c%23/ChromeTabTitles/Form1.cs
+        /// </summary>
         private void showTabTitles()
         {
             //Clear our array of tab titles
@@ -117,35 +125,41 @@ namespace YoutubeTitleForYvonne
             // Kick off our search for chrome tab titles
             EnumWindowsCallback callBackFn = new EnumWindowsCallback(Enumerator);
             EnumWindows(callBackFn, 0);
-
-            //Add to our listbox
-            //listBox1.Items.AddRange(youtubeWindows.ToArray());
         }
 
-        //Enums through all visible windows - gets each chrome handle
+        /// <summary>
+        /// <para>Enums through all visible windows - gets each chrome handle</para>
+        /// <para>This function is based on jasonfah/chrome-tab-titles on GitHub
+        /// https://github.com/jasonfah/chrome-tab-titles/blob/master/c%23/ChromeTabTitles/Form1.cs
+        /// </para>
+        /// </summary>
         private bool Enumerator(IntPtr hwnd, int lParam)
         {
             if (IsWindowVisible(hwnd))
             {
                 StringBuilder sClassName = new StringBuilder(256);
-                uint processID = 0;
-                GetWindowThreadProcessId(hwnd, out processID);
-                Process processFromID = Process.GetProcessById((int)processID);
+                uint processId = 0;
+                GetWindowThreadProcessId(hwnd, out processId);
+                Process processFromID = Process.GetProcessById((int)processId);
                 GetClassName(hwnd, sClassName, sClassName.Capacity);
 
                 //Only want visible chrome windows (not any electron type apps that have chrome embedded!)
                 if (((sClassName.ToString() == "Chrome_WidgetWin_1") && (processFromID.ProcessName == "chrome")))
                 {
-                    FindChromeTabs(hwnd);
+                    FindChromeTabs(hwnd, processId);
                 }
-
             }
 
             return true;
         }
 
-        //Takes chrome window handle, searches for tabstrip then gets tab titles
-        private void FindChromeTabs(IntPtr hwnd)
+        /// <summary>
+        /// <para>Takes chrome window handle, searches for tabstrip then gets tab titles</para>
+        /// <para>This function is based on jasonfah/chrome-tab-titles on GitHub
+        /// https://github.com/jasonfah/chrome-tab-titles/blob/master/c%23/ChromeTabTitles/Form1.cs
+        /// </para>
+        /// </summary>
+        private void FindChromeTabs(IntPtr hwnd, uint processId)
         {
             //To find the tabs we first need to locate something reliable - the 'New Tab' button
             AutomationElement rootElement = AutomationElement.FromHandle(hwnd);
@@ -170,27 +184,61 @@ namespace YoutubeTitleForYvonne
             {
                 if (!String.IsNullOrEmpty(tabItem.Current.Name) && tabItem.Current.Name.Contains("YouTube"))
                 {
-                    //tabTitles.Add(tabItem.Current.Name.ToString());
-                    youtubeWindows.Add(new YoutubeWindow { Hwnd = hwnd, TabName = tabItem.Current.Name, elemTabStrip = elemTabStrip });
+                    youtubeWindows.Add(new YoutubeWindow { Hwnd = hwnd, TabName = tabItem.Current.Name, elemTabStrip = elemTabStrip, ProcessId = processId });
                     break;
                 }
             }
         }
 
+        private string GetUpdatedChromeTabTitle(uint processId)
+        {
+            Process p = Process.GetProcessById((int)processId);
+
+            return CleanYoutubeTitle(p.MainWindowTitle);
+        }
+
         private string GetUpdatedChromeTabTitle(AutomationElement elemTabStrip)
         {
-            // Create new stopwatch.
-            Stopwatch stopwatch = new Stopwatch();
-
             TreeWalker tWalker = TreeWalker.ControlViewWalker;
 
-            // Get the first tab and see if its a YouTube tab
+            // Get the first tab
             AutomationElement firstTab = TreeWalker.RawViewWalker.GetFirstChild(elemTabStrip);
 
+            // If getting the first tab fails, stop here
+            if (firstTab == null)
+            {
+                return null;
+            }
+
+            // Once getting the first tab successfully, see if it's a YouTube tab
+
+            string name = firstTab.Current.Name;
+
+            if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
+            {
+                return CleanYoutubeTitle(name);
+            }
+
+            // If not then walk through the siblings until we find the first YouTube tab
+            AutomationElement tabSibling = firstTab;
+            while ((tabSibling = TreeWalker.RawViewWalker.GetNextSibling(tabSibling)) != null)
+            {
+                name = tabSibling.Current.Name;
+
+                if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
+                {
+                    return CleanYoutubeTitle(name);
+                }
+            }
+
+            return null;
+        }
+
+        private string CleanYoutubeTitle(string name)
+        {
             int youtubeIndex = 0;
             int startIndex = 0;
             bool looksLikeNotificationNumber = false;
-            string name = firstTab.Current.Name;
 
             if (!String.IsNullOrEmpty(name))
             {
@@ -217,48 +265,8 @@ namespace YoutubeTitleForYvonne
                             }
                         }
                     }
-    
+
                     return name.Substring(startIndex, youtubeIndex - startIndex);
-                }
-            }
-
-            // If not then walk through the siblings until we find the first YouTube tab
-            AutomationElement tabSibling = firstTab;
-            while ((tabSibling = TreeWalker.RawViewWalker.GetNextSibling(tabSibling)) != null)
-            {
-                youtubeIndex = 0;
-                startIndex = 0;
-                looksLikeNotificationNumber = false;
-                name = tabSibling.Current.Name;
-
-                if (!String.IsNullOrEmpty(name))
-                {
-                    youtubeIndex = name.IndexOf(" - YouTube");
-
-                    if (youtubeIndex != -1)
-                    {
-                        if (name.Length > 1 && name[0] == '(')
-                        {
-                            for (int i = 1; i < name.Length; ++i)
-                            {
-                                if (char.IsDigit(name[i]))
-                                {
-                                    looksLikeNotificationNumber = true;
-                                }
-                                else if (name[i] == ')' && looksLikeNotificationNumber)
-                                {
-                                    startIndex = i + 2;
-                                    break;
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-
-                        return name.Substring(startIndex, youtubeIndex - startIndex);
-                    }
                 }
             }
 
@@ -327,7 +335,16 @@ namespace YoutubeTitleForYvonne
             {
                 ThreadHelperClass.SetVisible(this, progressBar, true);
 
-                string updatedTabName = GetUpdatedChromeTabTitle(selectedTabStrip);
+                string updatedTabName;
+
+                if (IsIconic(selectedYoutubeWindow.Hwnd))
+                {
+                    updatedTabName = GetUpdatedChromeTabTitle(selectedYoutubeWindow.ProcessId);
+                }
+                else
+                {
+                    updatedTabName = GetUpdatedChromeTabTitle(selectedYoutubeWindow.elemTabStrip);
+                }
 
                 if (ThreadHelperClass.GetText(this, btnStartStop) == "3. Stop")
                 {
