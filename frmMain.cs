@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -86,7 +87,7 @@ namespace YoutubeTitleForYvonne
 
                 ThreadHelperClass.SetEnabled(this, btnStartStop, true);
 
-                MessageBox.Show("Selected: " + youtubeWindow.TabName, "Selected Chrome Window");
+                MessageBox.Show("Selected: " + youtubeWindow.TabName + Environment.NewLine + Environment.NewLine + "If you close the selected window or move the YouTube tab into a different window, come back and start again from button #1.", "Selected Chrome Window", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -94,20 +95,36 @@ namespace YoutubeTitleForYvonne
         {
             if (selectedYoutubeWindow.elemTabStrip != null)
             {
-                tmrUpdateCurrentlyPlaying.Enabled = !tmrUpdateCurrentlyPlaying.Enabled;
-
-                if (tmrUpdateCurrentlyPlaying.Enabled && btnStartStop.Text == "3. Start")
+                if (!tmrUpdateCurrentlyPlaying.Enabled && btnStartStop.Text == "3. Start")
                 {
+                    try
+                    {
+                        System.IO.File.WriteAllText(outputFileName, "");
+                    }
+                    catch
+                    {
+                        MessageBox.Show("The selected output file/folder:" + Environment.NewLine + outputFileName + Environment.NewLine + "is not writeable. Please change output filename under Options.", "Invalid Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    tmrUpdateCurrentlyPlaying.Enabled = !tmrUpdateCurrentlyPlaying.Enabled;
+
                     btnStartStop.Text = "3. Stop";
                     lblCurrentlyPlaying.Text = "Starting...";
-                    System.IO.File.WriteAllText(outputFileName, "");
                     lastPlayingTitle = null;
                 }
                 else
                 {
+                    try
+                    {
+                        System.IO.File.WriteAllText(outputFileName, "");
+                    }
+                    catch { }
+
+                    tmrUpdateCurrentlyPlaying.Enabled = !tmrUpdateCurrentlyPlaying.Enabled;
+
                     btnStartStop.Text = "3. Start";
                     lblCurrentlyPlaying.Text = "Stopped";
-                    System.IO.File.WriteAllText(outputFileName, "");
                     lastPlayingTitle = null;
                 }
             }
@@ -130,7 +147,9 @@ namespace YoutubeTitleForYvonne
             {
                 MessageBox.Show(@"Google Chrome doesn't seem to be running.
 
-Make sure Chrome is running with the YouTube tab open and that the Chrome window is not minimized, then try again (it is OK to minimize the Chrome window after this step is completed).", "No Google Chrome not found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+Make sure Google Chrome is running with the YouTube tab open and that the Chrome window is not minimized, then try again.
+
+It is OK to minimize the Chrome window after this step is completed.", "No Google Chrome not found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
@@ -335,8 +354,9 @@ Make sure Chrome is running with the YouTube tab open and that the Chrome window
             {
                 MessageBox.Show(@"Google Chrome is open but could not find any non-minimized Chrome windows with YouTube tabs.
 
-Make sure the YouTube tab is open and that the Chrome window is not minimized, then try again (it is OK to minimize the Chrome window after this step is completed).
-", "No YouTube tabs were found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+Make sure the YouTube tab is open and that the Chrome window is not minimized, then try again.
+
+It is OK to minimize the Chrome window after this step is completed.", "No YouTube tabs were found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -368,14 +388,22 @@ Make sure the YouTube tab is open and that the Chrome window is not minimized, t
                     {
                         ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Could not get YouTube title. Is selected window/tab closed? Try starting again from button #1.");
 
-                        if (!debug)
+                        try
                         {
-                            System.IO.File.WriteAllText(outputFileName, "");
+                            if (!debug)
+                            {
+                                System.IO.File.WriteAllText(outputFileName, "");
+                            }
+                            else
+                            {
+                                System.IO.File.AppendAllText(outputFileName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + Environment.NewLine);
+                            }
                         }
-                        else
+                        catch
                         {
-                            System.IO.File.AppendAllText(outputFileName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + Environment.NewLine);
+                            ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Error: Output file is not writeable. Please change output filename under options.");
                         }
+                        
                         
                         lastPlayingTitle = null;
                     }
@@ -384,13 +412,21 @@ Make sure the YouTube tab is open and that the Chrome window is not minimized, t
                         lastPlayingTitle = updatedTabName;
                         ThreadHelperClass.SetText(this, lblCurrentlyPlaying, updatedTabName);
 
-                        if (!debug)
+                        try
                         {
-                            System.IO.File.WriteAllText(outputFileName, updatedTabName);
+                            if (!debug)
+                            {
+                                System.IO.File.WriteAllText(outputFileName, updatedTabName);
+                            }
+                            else
+                            {
+                                System.IO.File.AppendAllText(outputFileName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + updatedTabName + Environment.NewLine);
+                            }
                         }
-                        else
+                        catch
                         {
-                            System.IO.File.AppendAllText(outputFileName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + updatedTabName + Environment.NewLine);
+                            ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Error: Output file is not writeable. Please change output filename under options.");
+                            lastPlayingTitle = null;
                         }
                     }
                 }
@@ -473,6 +509,56 @@ Make sure the YouTube tab is open and that the Chrome window is not minimized, t
             else
             {
                 return GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
+            }
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            if (int.TryParse(ConfigurationManager.AppSettings.Get("RefreshInterval"), out int refreshInterval))
+            {
+                tmrUpdateCurrentlyPlaying.Interval = refreshInterval * 1000;
+            }
+            else
+            {
+                tmrUpdateCurrentlyPlaying.Interval = 2000;
+            }
+
+            // Get output filename
+            outputFileName = ConfigurationManager.AppSettings.Get("OutputFilename");
+
+            if (String.IsNullOrEmpty(outputFileName))
+            {
+                outputFileName = System.IO.Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\nowplaying.txt";
+            }
+        }
+
+        private void btnOptions_Click(object sender, EventArgs e)
+        {
+            using (frmOptions form = new frmOptions())
+            {
+                // Set form properties...
+
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    tmrUpdateCurrentlyPlaying.Interval = Convert.ToInt32(form.RefreshInterval) * 1000;
+                    outputFileName = form.OutputFilename;
+                    lastPlayingTitle = null; // Force file write on next update
+
+                    // Open App.Config of executable
+                    System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    // Add an Application Setting.
+                    config.AppSettings.Settings.Remove("RefreshInterval");
+                    config.AppSettings.Settings.Add("RefreshInterval", Convert.ToInt32(form.RefreshInterval).ToString());
+
+                    // Add an Application Setting.
+                    config.AppSettings.Settings.Remove("OutputFilename");
+                    config.AppSettings.Settings.Add("OutputFilename", form.OutputFilename);
+
+                    // Save the configuration file.
+                    config.Save(ConfigurationSaveMode.Modified);
+                    // Force a reload of a changed section.
+                    ConfigurationManager.RefreshSection("appSettings");
+                }
             }
         }
 

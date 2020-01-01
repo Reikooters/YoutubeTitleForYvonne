@@ -41,6 +41,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.bgwUpdateCurrentlyPlaying = new System.ComponentModel.BackgroundWorker();
             this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.btnOptions = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -125,10 +126,10 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(12, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(998, 18);
+            this.label2.Size = new System.Drawing.Size(949, 18);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Open YouTube tab in Google Chrome first. YouTube song title will be saved to \"now" +
-    "playing.txt\" in the application folder. Left-most tab in window is used.";
+            this.label2.Text = "Open YouTube tab in Google Chrome first (non-minmized) and select Chrome window b" +
+    "elow. The left-most YouTube tab in the window is used.";
             // 
             // pictureBox1
             // 
@@ -154,11 +155,23 @@
             this.progressBar.Value = 100;
             this.progressBar.Visible = false;
             // 
+            // btnOptions
+            // 
+            this.btnOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOptions.Location = new System.Drawing.Point(968, 8);
+            this.btnOptions.Name = "btnOptions";
+            this.btnOptions.Size = new System.Drawing.Size(75, 23);
+            this.btnOptions.TabIndex = 9;
+            this.btnOptions.Text = "Options";
+            this.btnOptions.UseVisualStyleBackColor = true;
+            this.btnOptions.Click += new System.EventHandler(this.btnOptions_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1054, 331);
+            this.Controls.Add(this.btnOptions);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label2);
@@ -173,7 +186,8 @@
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "YouTube Title For Yvonne v4 by Shane 2020-01-01";
+            this.Text = "YouTube Title For Yvonne v5 by Shane 2020-01-01";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -194,6 +208,7 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.ComponentModel.BackgroundWorker bgwUpdateCurrentlyPlaying;
         private System.Windows.Forms.ProgressBar progressBar;
+        private System.Windows.Forms.Button btnOptions;
     }
 }
 
