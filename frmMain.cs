@@ -33,6 +33,11 @@ namespace YoutubeTitleForYvonne
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool IsIconic(IntPtr hWnd);
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int GetWindowTextLength(HandleRef hWnd);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int GetWindowText(HandleRef hWnd, StringBuilder lpString, int nMaxCount);
+
         List<YoutubeWindow> youtubeWindows { get; set; } = new List<YoutubeWindow>();
         BindingSource bindingSource { get; set; } = new BindingSource();
 
@@ -190,6 +195,14 @@ namespace YoutubeTitleForYvonne
             }
         }
 
+        private string GetUpdatedChromeTabTitle(IntPtr hwnd)
+        {
+            int capacity = GetWindowTextLength(new HandleRef(this, hwnd)) * 2;
+            StringBuilder stringBuilder = new StringBuilder(capacity);
+            GetWindowText(new HandleRef(this, hwnd), stringBuilder, stringBuilder.Capacity);
+            return CleanYoutubeTitle(stringBuilder.ToString());
+        }
+
         private string GetUpdatedChromeTabTitle(uint processId)
         {
             Process p = Process.GetProcessById((int)processId);
@@ -339,7 +352,7 @@ namespace YoutubeTitleForYvonne
 
                 if (IsIconic(selectedYoutubeWindow.Hwnd))
                 {
-                    updatedTabName = GetUpdatedChromeTabTitle(selectedYoutubeWindow.ProcessId);
+                    updatedTabName = GetUpdatedChromeTabTitle(selectedYoutubeWindow.Hwnd);
                 }
                 else
                 {

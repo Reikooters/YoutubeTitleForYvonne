@@ -173,7 +173,7 @@
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "YouTube Title For Yvonne v2 by Shane 2019-12-30";
+            this.Text = "YouTube Title For Yvonne v3 by Shane 2019-12-31";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
