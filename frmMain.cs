@@ -46,6 +46,9 @@ namespace YoutubeTitleForYvonne
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
 
+        [DllImport("user32.dll")]
+        private static extern uint SendMessage(IntPtr hWnd, uint msg, uint wParam, uint lParam);
+
         bool debug = false;
 
         List<YoutubeWindow> youtubeWindows { get; set; } = new List<YoutubeWindow>();
@@ -54,6 +57,10 @@ namespace YoutubeTitleForYvonne
         YoutubeWindow selectedYoutubeWindow { get; set; }
         string lastPlayingTitle { get; set; }
         string outputFileName { get; set; }
+
+        public const int DefaultRefreshInterval = 5;
+
+        private const uint WM_MOUSELEAVE = 0x02A3;
 
         private const int GWL_STYLE = 16;
         private const int GWL_EXSTYLE = -20;
@@ -227,10 +234,22 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
             {
                 if (!String.IsNullOrEmpty(tabItem.Current.Name) && tabItem.Current.Name.Contains("YouTube"))
                 {
-                    youtubeWindows.Add(new YoutubeWindow { TabName = tabItem.Current.Name, elemTabStrip = elemTabStrip, Hwnd = hwnd });
+                    youtubeWindows.Add(new YoutubeWindow { TabName = tabItem.Current.Name, elemTabStrip = elemTabStrip, Hwnd = hwnd, elemTab = tabItem });
                     break;
                 }
             }
+        }
+
+        private string GetUpdatedChromeTabTitleFromTab(AutomationElement elemTab)
+        {
+            string name = elemTab.Current.Name;
+
+            if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
+            {
+                return CleanYoutubeTitle(name);
+            }
+
+            return null;
         }
 
         private string GetUpdatedChromeTabTitleFromTabStrip(AutomationElement elemTabStrip)
@@ -484,6 +503,7 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
                     minAnimateChanged = true;
                 }
 
+                // Show main window
                 winLongStyle = GetWindowLong(Hwnd, GWL_STYLE);
                 winLongExStyle = GetWindowLong(Hwnd, GWL_EXSTYLE);
                 SetWindowLong(Hwnd, GWL_EXSTYLE, winLongExStyle | WS_EX_LAYERED);
@@ -491,8 +511,13 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
 
                 ShowWindow(Hwnd, ShowWindowEnum.ShowNormalNoActivate);
 
-                string updatedTabName = GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
+                //string updatedTabName = GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
+                string updatedTabName = GetUpdatedChromeTabTitleFromTab(selectedYoutubeWindow.elemTab);
 
+                // Paint the window
+                SendMessage(Hwnd, WM_MOUSELEAVE, 0, 0);
+
+                // Minimize the main window again
                 ShowWindow(Hwnd, ShowWindowEnum.ShowMinNoActivate);
 
                 SetWindowLong(Hwnd, GWL_EXSTYLE, winLongExStyle);
@@ -508,7 +533,8 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
             }
             else
             {
-                return GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
+                //return GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
+                return GetUpdatedChromeTabTitleFromTab(selectedYoutubeWindow.elemTab);
             }
         }
 
@@ -520,7 +546,7 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
             }
             else
             {
-                tmrUpdateCurrentlyPlaying.Interval = 2000;
+                tmrUpdateCurrentlyPlaying.Interval = DefaultRefreshInterval * 1000;
             }
 
             // Get output filename

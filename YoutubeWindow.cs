@@ -12,6 +12,7 @@ namespace YoutubeTitleForYvonne
         public IntPtr Hwnd { get; set; }
         public string TabName { get; set; }
         public AutomationElement elemTabStrip { get; set; }
+        public AutomationElement elemTab { get; set; }
 
         public YoutubeWindow Clone()
         {

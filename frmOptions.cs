@@ -15,7 +15,7 @@ namespace YoutubeTitleForYvonne
 {
     public partial class frmOptions : Form
     {
-        public decimal RefreshInterval { get; set; } = 2M;
+        public decimal RefreshInterval { get; set; }
         public string OutputFilename { get; set; } = "";
 
         public frmOptions()
@@ -32,7 +32,7 @@ namespace YoutubeTitleForYvonne
             }
             else
             {
-                numRefreshInterval.Value = 2M;
+                numRefreshInterval.Value = frmMain.DefaultRefreshInterval;
             }
 
             RefreshInterval = numRefreshInterval.Value;

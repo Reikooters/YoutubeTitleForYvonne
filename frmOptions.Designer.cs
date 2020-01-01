@@ -67,7 +67,7 @@
             this.numRefreshInterval.Size = new System.Drawing.Size(120, 24);
             this.numRefreshInterval.TabIndex = 1;
             this.numRefreshInterval.Value = new decimal(new int[] {
-            2,
+            5,
             0,
             0,
             0});
