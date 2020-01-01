@@ -49,7 +49,7 @@
             this.btnFindChromeWindows.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnFindChromeWindows.Location = new System.Drawing.Point(274, 35);
             this.btnFindChromeWindows.Name = "btnFindChromeWindows";
-            this.btnFindChromeWindows.Size = new System.Drawing.Size(734, 37);
+            this.btnFindChromeWindows.Size = new System.Drawing.Size(769, 37);
             this.btnFindChromeWindows.TabIndex = 0;
             this.btnFindChromeWindows.Text = "1. Find non-minimized Chrome windows with YouTube tabs";
             this.btnFindChromeWindows.UseVisualStyleBackColor = true;
@@ -62,7 +62,7 @@
             this.lstYouTubeWindows.ItemHeight = 18;
             this.lstYouTubeWindows.Location = new System.Drawing.Point(275, 78);
             this.lstYouTubeWindows.Name = "lstYouTubeWindows";
-            this.lstYouTubeWindows.Size = new System.Drawing.Size(732, 130);
+            this.lstYouTubeWindows.Size = new System.Drawing.Size(767, 130);
             this.lstYouTubeWindows.TabIndex = 1;
             // 
             // btnSelectChromeWindow
@@ -71,7 +71,7 @@
             this.btnSelectChromeWindow.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSelectChromeWindow.Location = new System.Drawing.Point(274, 214);
             this.btnSelectChromeWindow.Name = "btnSelectChromeWindow";
-            this.btnSelectChromeWindow.Size = new System.Drawing.Size(734, 37);
+            this.btnSelectChromeWindow.Size = new System.Drawing.Size(769, 37);
             this.btnSelectChromeWindow.TabIndex = 2;
             this.btnSelectChromeWindow.Text = "2. Select window from list above";
             this.btnSelectChromeWindow.UseVisualStyleBackColor = true;
@@ -83,7 +83,7 @@
             this.btnStartStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnStartStop.Location = new System.Drawing.Point(274, 256);
             this.btnStartStop.Name = "btnStartStop";
-            this.btnStartStop.Size = new System.Drawing.Size(734, 37);
+            this.btnStartStop.Size = new System.Drawing.Size(769, 37);
             this.btnStartStop.TabIndex = 3;
             this.btnStartStop.Text = "3. Start";
             this.btnStartStop.UseVisualStyleBackColor = true;
@@ -158,7 +158,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1018, 331);
+            this.ClientSize = new System.Drawing.Size(1054, 331);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label2);
@@ -173,7 +173,7 @@
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "YouTube Title For Yvonne v3 by Shane 2019-12-31";
+            this.Text = "YouTube Title For Yvonne v4 by Shane 2020-01-01";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
