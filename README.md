@@ -26,7 +26,7 @@ The application is straight forward to use. Instructions are also provided withi
 4. Click the "Select tab from list above" button. The application will remember your choice and disable the list.
 5. Finally, click the "Start monitoring tab title" button.  The title of the YouTube tab will now be saved to a text file on a default interval of every 5 seconds. The video title is written to the file `nowplaying.txt` within the application's directory by default.
 
-#### Notes
+### Notes
 
 Click the "Options" button in the application to configure the interval and output filename.
 
@@ -36,13 +36,13 @@ The tab title is automatically cleaned to get just the video title. It will atte
 - YouTube notifications, e.g. "(1)" at the start of the tab title.
 - Unnecessary text commonly included in music video titles that are not part of the song name, e.g. "Official Video", "Lyrics Video", "Music Video", "MV", "HD Video", etc.
 
-#### Once tab is selected, you can now minimize/full screen the window if desired
+### Once tab is selected, you can now minimize/full screen the window if desired
 
 Once you have selected the tab as per step #4 above, you can now minimize or make the Google Chrome window full screen and the application will still work. This means that you could start a YouTube playlist and minimize the window - the application will still pick up the currently playing video title when YouTube progresses to the next video in the playlist.
 
 This is possible using some magic where at each refresh interval, the Chrome window with the selected YouTube tab will be restored from being minimized, but it will be invisible and won't catch keys or clicks. The current title will then be retrieved and the window will be minimized again until the next refresh interval. During testing, this did not cause any issues while playing a game in full screen, so there should not be any side effects to this. If you do experience issues, you can leave the Chrome window unminimized to prevent this behaviour.
 
-#### Reselect a new tab if you close or drag the selected tab to another window
+### Reselect a new tab if you close or drag the selected tab to another window
 
 If you close the selected YouTube tab or move it to a different window, come back to the application and start again by searching for YouTube tabs using button #1, then follow the process from the beginning. Moving the tab around within the same Chrome window by dragging it is OK and won't require reselecting the tab.
 
@@ -68,7 +68,7 @@ These instructions explain how to add a text file overlay to your stream using S
 8. Configure the font, color and styles to your liking.
 9. Click the "Done" button.
 
-#### Scrolling/ticker effect
+### Scrolling/ticker effect
 
 To improve the visual appearance, follow these steps to setup scrolling. This makes the text scroll within a constrained area like a ticker, similar to the old HTML marquee effect from the 1990s/2000s.
 
