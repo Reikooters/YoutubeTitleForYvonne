@@ -20,7 +20,7 @@ The application requires the .NET Framework 4.5 runtime to be installed on your 
 
 The application is straight forward to use. Instructions are also provided within the application, but the steps are provided here:
 
-1. First, open Google Chrome and navigate to YouTube. Do not minimize or make the Google Chrome window full screen, as the application will not be able to scan the tabs in the window otherwise.
+1. First, open Google Chrome and navigate to YouTube. For now, do not minimize or make the Google Chrome window full screen, as the application will not be able to scan the tabs in the window otherwise (you'll be able to minimize the window later).
 2. In the application, click the "Find YouTube tabs in non-minimized Chrome windows" button. This will scan all of your Google Chrome windows to find all of your open YouTube tabs. This may take a few moments (depending on how many Chrome windows and tabs you have open in total).
 3. Once scanning is finished, a list of the YouTube tabs that were found will be displayed. Select the tab from the list which you intend to use for playing music.
 4. Click the "Select tab from list above" button. The application will remember your choice and disable the list.
