@@ -1,3 +1,5 @@
+# YoutubeTitleForYvonne
+
 A Windows application written in C# using .NET Framework 4.5. Created for my friend Yvonne.
 
 This application is used to monitor a Google Chrome tab which has a YouTube video open, and writes the title of the video to a .txt file on your computer at an interval - by default, this is done every 5 seconds. The interval and output path and filename are configurable.
@@ -54,7 +56,7 @@ These instructions explain how to add a text file overlay to your stream using S
 4. Give the source a name, e.g. "Now Playing" and click the "Add Source" button.
 5. Next to the "Text" field, tick the "Read from file" checkbox.
 6. Click the "Browse" button that appears.
-7. Choose the text file which is written to by YoutubePlayerForYvvone - by default this is "nowplaying.txt" in the application folder, but you can also configure this in the Options screen.
+7. Choose the text file which is written to by YoutubeTitleForYvonne - by default this is "nowplaying.txt" in the application folder, but you can also configure this in the Options screen.
 8. Configure the font, color and styles to your liking.
 9. Click the "Done" button.
 
