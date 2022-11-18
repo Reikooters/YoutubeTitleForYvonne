@@ -10,7 +10,7 @@ You can then create an overlay in a streaming program such as Streamlabs OBS whi
 
 All you need to do is simply unzip the application into its own folder and run `YoutubeTitleForYvvone.exe`. No installation process is required.
 
-The application requires the .NET Framework 4.5 runtime to be installed on your computer. You should already have this installed on your computer from Windows Updates, but if you do need to install it manually, you can download it here: https://www.microsoft.com/en-gb/download/details.aspx?id=30653
+The application requires the .NET Framework 4.5 runtime to be installed on your computer. You should already have this installed on your computer from Windows Updates if you are using Windows 8 or above. In case you do need to install it manually, you can download it here: https://www.microsoft.com/en-gb/download/details.aspx?id=30653
 
 ## How to use
 
