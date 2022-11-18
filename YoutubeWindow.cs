@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Automation;
+﻿using Interop.UIAutomationClient;
+using System;
 
 namespace YoutubeTitleForYvonne
 {
@@ -11,8 +7,8 @@ namespace YoutubeTitleForYvonne
     {
         public IntPtr Hwnd { get; set; }
         public string TabName { get; set; }
-        public AutomationElement elemTabStrip { get; set; }
-        public AutomationElement elemTab { get; set; }
+        public IUIAutomationElement elemTabStrip { get; set; }
+        public IUIAutomationElement elemTab { get; set; }
 
         public YoutubeWindow Clone()
         {

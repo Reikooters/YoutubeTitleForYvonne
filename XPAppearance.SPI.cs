@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace YoutubeTitleForYvonne
+﻿namespace YoutubeTitleForYvonne
 {
     /// <summary>
     /// Taken from: https://www.codeproject.com/Articles/20651/Capturing-Minimized-Window-A-Kid-s-Trick

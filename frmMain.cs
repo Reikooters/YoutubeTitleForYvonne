@@ -1,15 +1,11 @@
-﻿using System;
+﻿using Interop.UIAutomationClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Automation;
 using System.Windows.Forms;
 
 namespace YoutubeTitleForYvonne
@@ -41,7 +37,23 @@ namespace YoutubeTitleForYvonne
         [DllImport("user32")]
         private static extern int SetLayeredWindowAttributes(IntPtr hWnd, byte crey, byte alpha, int flags);
 
-        private enum ShowWindowEnum { Hide = 0, ShowNormal = 1, ShowMinimized = 2, ShowMaximized = 3, Maximize = 3, ShowNormalNoActivate = 4, Show = 5, Minimize = 6, ShowMinNoActivate = 7, ShowNoActivate = 8, Restore = 9, ShowDefault = 10, ForceMinimized = 11 };
+        private enum ShowWindowEnum
+        {
+            Hide = 0,
+            ShowNormal = 1,
+            ShowMinimized = 2,
+            ShowMaximized = 3,
+            Maximize = 3,
+            ShowNormalNoActivate = 4,
+            Show = 5,
+            Minimize = 6,
+            ShowMinNoActivate = 7,
+            ShowNoActivate = 8,
+            Restore = 9,
+            ShowDefault = 10,
+            ForceMinimized = 11
+        };
+
         [DllImport("user32")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
@@ -71,6 +83,10 @@ namespace YoutubeTitleForYvonne
         private static int winLongExStyle;
         private static bool minAnimateChanged = false;
 
+        private readonly CUIAutomation _automation;
+        IUIAutomationCondition _automationCondition;
+        IUIAutomationTreeWalker _automationTreeWalker;
+
         public frmMain()
         {
             InitializeComponent();
@@ -80,8 +96,16 @@ namespace YoutubeTitleForYvonne
             lstYouTubeWindows.DataSource = bindingSource;
             lstYouTubeWindows.DisplayMember = "TabName";
             lstYouTubeWindows.ValueMember = "Hwnd";
-
+            
             outputFileName = System.IO.Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\nowplaying.txt";
+
+            // Rather than letting UIAutomation find the new tab button by name using a filter, we'll
+            // crawl through every UI element and check the name ourselves, as this stopped working.
+
+            // We can create these once and cache them.
+            _automation = new CUIAutomation();
+            _automationCondition = _automation.CreateTrueCondition();
+            _automationTreeWalker = _automation.CreateTreeWalker(_automationCondition);
         }
 
         private void btnSelectChromeWindow_Click(object sender, EventArgs e)
@@ -92,17 +116,19 @@ namespace YoutubeTitleForYvonne
 
                 selectedYoutubeWindow = youtubeWindow.Clone();
 
+                ThreadHelperClass.SetEnabled(this, lstYouTubeWindows, false);
+                ThreadHelperClass.SetEnabled(this, btnSelectChromeWindow, false);
                 ThreadHelperClass.SetEnabled(this, btnStartStop, true);
 
-                MessageBox.Show("Selected: " + youtubeWindow.TabName + Environment.NewLine + Environment.NewLine + "If you close the selected window or move the YouTube tab into a different window, come back and start again from button #1.", "Selected Chrome Window", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Selected: " + youtubeWindow.TabName + Environment.NewLine + Environment.NewLine + "If you close the selected YouTube tab or move it into a different window, come back to this application and start again by searching for YouTube tabs using button #1, then follow the process from the beginning. Moving the tab around within the same Chrome window by dragging it is OK and won't require reselecting the tab." + Environment.NewLine + Environment.NewLine + "You can now click Start monitoring (button #3) to begin saving the video title to file. See 'Options' to specify the output filename.", "Selected Chrome Window", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void btnStartStop_Click(object sender, EventArgs e)
         {
-            if (selectedYoutubeWindow.elemTabStrip != null)
+            if (selectedYoutubeWindow.elemTab != null)
             {
-                if (!tmrUpdateCurrentlyPlaying.Enabled && btnStartStop.Text == "3. Start")
+                if (!tmrUpdateCurrentlyPlaying.Enabled && btnStartStop.Text == "3. Start monitoring tab title")
                 {
                     try
                     {
@@ -114,11 +140,16 @@ namespace YoutubeTitleForYvonne
                         return;
                     }
 
-                    tmrUpdateCurrentlyPlaying.Enabled = !tmrUpdateCurrentlyPlaying.Enabled;
-
-                    btnStartStop.Text = "3. Stop";
+                    btnStartStop.Text = "3. Stop monitoring tab title";
                     lblCurrentlyPlaying.Text = "Starting...";
                     lastPlayingTitle = null;
+
+                    // Force an update currently playing text immediately
+                    bgwUpdateCurrentlyPlaying_DoWork(null, null);
+                    bgwUpdateCurrentlyPlaying_RunWorkerCompleted(null, null);
+
+                    // Start the timer to update currently playing text periodically
+                    tmrUpdateCurrentlyPlaying.Enabled = true;
                 }
                 else
                 {
@@ -128,9 +159,9 @@ namespace YoutubeTitleForYvonne
                     }
                     catch { }
 
-                    tmrUpdateCurrentlyPlaying.Enabled = !tmrUpdateCurrentlyPlaying.Enabled;
+                    tmrUpdateCurrentlyPlaying.Enabled = false;
 
-                    btnStartStop.Text = "3. Start";
+                    btnStartStop.Text = "3. Start monitoring tab title";
                     lblCurrentlyPlaying.Text = "Stopped";
                     lastPlayingTitle = null;
                 }
@@ -145,6 +176,9 @@ namespace YoutubeTitleForYvonne
         {
             youtubeWindows.Clear();
             bindingSource.ResetBindings(false);
+
+            ThreadHelperClass.SetEnabled(this, lstYouTubeWindows, false);
+            ThreadHelperClass.SetEnabled(this, btnSelectChromeWindow, false);
 
             //Grab all the Chrome processes
             Process[] chromeProcesses = Process.GetProcessesByName("chrome");
@@ -178,7 +212,7 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
         }
 
         /// <summary>
-        /// <para>Enums through all visible windows - gets each chrome handle</para>
+        /// <para>Iterates through all visible windows - gets each chrome handle</para>
         /// <para>This function is based on jasonfah/chrome-tab-titles on GitHub
         /// https://github.com/jasonfah/chrome-tab-titles/blob/master/c%23/ChromeTabTitles/Form1.cs
         /// </para>
@@ -211,79 +245,80 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
         /// </summary>
         private void FindChromeTabs(IntPtr hwnd)
         {
-            //To find the tabs we first need to locate something reliable - the 'New Tab' button
-            AutomationElement rootElement = AutomationElement.FromHandle(hwnd);
-            Condition condNewTab = new PropertyCondition(AutomationElement.NameProperty, "New Tab");
+            // To find the tabs we first need to locate something reliable - the 'New Tab' button
 
-            //Find the 'new tab' button
-            AutomationElement elemNewTab = rootElement.FindFirst(TreeScope.Descendants, condNewTab);
+            // Get the UI element based on the Chrome window's handle
+            IUIAutomationElement rootElement = _automation.ElementFromHandle(hwnd);
 
-            //No tabstrip found
-            if ((elemNewTab == null))
+            // Get every child element of the Chrome window
+            IUIAutomationElementArray result = rootElement.FindAll(TreeScope.TreeScope_Subtree, _automationCondition);
+
+            // Make sure there were child elements
+            if (result == null || result.Length == 0)
             {
                 return;
             }
 
-            //Get the tabstrip by getting the parent of the 'new tab' button
-            TreeWalker tWalker = TreeWalker.ControlViewWalker;
-            AutomationElement elemTabStrip = tWalker.GetParent(elemNewTab);
+            bool foundYoutubeTabInWindow = false;
 
-            //Loop through all the tabs and get the names which is the page title
-            Condition tabItemCondition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.TabItem);
-            foreach (AutomationElement tabItem in elemTabStrip.FindAll(TreeScope.Children, tabItemCondition))
+            // Loop through all child elements of the Chrome window
+            for (int i = 0; i < result.Length; ++i)
             {
-                if (!String.IsNullOrEmpty(tabItem.Current.Name) && tabItem.Current.Name.Contains("YouTube"))
+                // Get the (i)th element
+                IUIAutomationElement element = result.GetElement(i);
+
+                // If the element's name is "New Tab" (this is the name of [+] button at the end of the tab strip)
+                // then we've found a child element of the tab strip.
+                // Normally we expect to only find one of these per Chrome Window, however, a user-created blank tab will also
+                // be named "New Tab" - we also accept this, as it still helps us find the Chrome window's tab strip.
+                if (element.CurrentName == "New Tab")
                 {
-                    youtubeWindows.Add(new YoutubeWindow { TabName = tabItem.Current.Name, elemTabStrip = elemTabStrip, Hwnd = hwnd, elemTab = tabItem });
+                    // Get the parent element, this will be the tab strip.
+                    IUIAutomationElement elemTabStrip = _automationTreeWalker.GetParentElement(element);
+
+                    // Get all child elements of the tab string. This will include tabs, as well as the [x] close button on tabs.
+                    IUIAutomationElementArray tabItems = elemTabStrip.FindAll(TreeScope.TreeScope_Subtree, _automationCondition);
+
+                    // Sanity check to make sure there were tabs. Should never happen since
+                    // we already found child elements in the previous step.
+                    if (tabItems == null || tabItems.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    // Loop through all the child elements of the tab strip.
+                    for (int j = 0; j < tabItems.Length; ++j)
+                    {
+                        // Get the (j)th element.
+                        IUIAutomationElement tabItem = tabItems.GetElement(j);
+
+                        // Get name of the element
+                        string tabName = tabItem.CurrentName;
+
+                        // If we found a tab with a YouTube video, then add it to our list of Chrome windows
+                        // which have a YouTube tab.
+                        if (tabName.Contains("YouTube"))
+                        {
+                            youtubeWindows.Add(new YoutubeWindow { TabName = tabItem.CurrentName, elemTabStrip = elemTabStrip, Hwnd = hwnd, elemTab = tabItem });
+                            foundYoutubeTabInWindow = true;
+                        }
+                    }
+                }
+
+                if (foundYoutubeTabInWindow)
+                {
                     break;
                 }
             }
         }
 
-        private string GetUpdatedChromeTabTitleFromTab(AutomationElement elemTab)
+        private string GetUpdatedChromeTabTitleFromTab(IUIAutomationElement elemTab)
         {
-            string name = elemTab.Current.Name;
+            string name = elemTab.CurrentName;
 
             if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
             {
                 return CleanYoutubeTitle(name);
-            }
-
-            return null;
-        }
-
-        private string GetUpdatedChromeTabTitleFromTabStrip(AutomationElement elemTabStrip)
-        {
-            TreeWalker tWalker = TreeWalker.ControlViewWalker;
-
-            // Get the first tab
-            AutomationElement firstTab = TreeWalker.RawViewWalker.GetFirstChild(elemTabStrip);
-
-            // If getting the first tab fails, stop here
-            if (firstTab == null)
-            {
-                return null;
-            }
-
-            // Once getting the first tab successfully, see if it's a YouTube tab
-
-            string name = firstTab.Current.Name;
-
-            if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
-            {
-                return CleanYoutubeTitle(name);
-            }
-
-            // If not then walk through the siblings until we find the first YouTube tab
-            AutomationElement tabSibling = firstTab;
-            while ((tabSibling = TreeWalker.RawViewWalker.GetNextSibling(tabSibling)) != null)
-            {
-                name = tabSibling.Current.Name;
-
-                if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
-                {
-                    return CleanYoutubeTitle(name);
-                }
             }
 
             return null;
@@ -291,7 +326,7 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
 
         private string CleanYoutubeTitle(string name)
         {
-            int youtubeIndex = 0;
+            int youtubeIndex;
             int startIndex = 0;
             bool looksLikeNotificationNumber = false;
 
@@ -341,27 +376,29 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
             tmrUpdateCurrentlyPlaying.Enabled = false;
 
             ThreadHelperClass.SetEnabled(this, btnFindChromeWindows, false);
-            ThreadHelperClass.SetText(this, btnFindChromeWindows, "Finding non-minimized Chrome windows with YouTube tabs...");
+            ThreadHelperClass.SetText(this, btnFindChromeWindows, "Finding YouTube tabs in non-minimized Chrome windows...");
+            ThreadHelperClass.SetEnabled(this, lstYouTubeWindows, false);
             ThreadHelperClass.SetEnabled(this, btnSelectChromeWindow, false);
-            ThreadHelperClass.SetText(this, btnSelectChromeWindow, "2. Select window from list above");
+            ThreadHelperClass.SetText(this, btnSelectChromeWindow, "2. Select tab from list above");
             ThreadHelperClass.SetEnabled(this, btnStartStop, false);
-            ThreadHelperClass.SetText(this, btnStartStop, "3. Start");
+            ThreadHelperClass.SetText(this, btnStartStop, "3. Start monitoring tab title");
 
             ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Stopped");
 
             showTabTitles();
             ThreadHelperClass.SetEnabled(this, btnFindChromeWindows, true);
-            ThreadHelperClass.SetText(this, btnFindChromeWindows, "1. Find non-minimized Chrome windows with YouTube tabs");
+            ThreadHelperClass.SetText(this, btnFindChromeWindows, "1. Find YouTube tabs in non-minimized Chrome windows");
 
             if (youtubeWindows.Count > 0)
             {
+                ThreadHelperClass.SetEnabled(this, lstYouTubeWindows, true);
                 ThreadHelperClass.SetEnabled(this, btnSelectChromeWindow, true);
             }
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.DrawIcon(global::YoutubeTitleForYvonne.Properties.Resources.appicon, 0, 0);
+            e.Graphics.DrawIcon(Properties.Resources.appicon, 0, 0);
         }
 
         private void bgwFindYouTubeWindows_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -401,7 +438,7 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
 
                 string updatedTabName = GetUpdatedChromeTabTitleFromWindow(selectedYoutubeWindow.Hwnd);
 
-                if (ThreadHelperClass.GetText(this, btnStartStop) == "3. Stop")
+                if (ThreadHelperClass.GetText(this, btnStartStop) == "3. Stop monitoring tab title")
                 {
                     if (String.IsNullOrEmpty(updatedTabName))
                     {
@@ -473,7 +510,7 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
 
         private void bgwUpdateCurrentlyPlaying_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (btnStartStop.Text == "3. Stop" && btnStartStop.Enabled == true)
+            if (btnStartStop.Text == "3. Stop monitoring tab title" && btnStartStop.Enabled == true)
             {
                 tmrUpdateCurrentlyPlaying.Enabled = true;
                 progressBar.Visible = false;
@@ -511,7 +548,6 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
 
                 ShowWindow(Hwnd, ShowWindowEnum.ShowNormalNoActivate);
 
-                //string updatedTabName = GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
                 string updatedTabName = GetUpdatedChromeTabTitleFromTab(selectedYoutubeWindow.elemTab);
 
                 // Paint the window
@@ -533,7 +569,6 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
             }
             else
             {
-                //return GetUpdatedChromeTabTitleFromTabStrip(selectedYoutubeWindow.elemTabStrip);
                 return GetUpdatedChromeTabTitleFromTab(selectedYoutubeWindow.elemTab);
             }
         }

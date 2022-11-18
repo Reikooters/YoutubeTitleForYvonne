@@ -52,12 +52,13 @@
             this.btnFindChromeWindows.Name = "btnFindChromeWindows";
             this.btnFindChromeWindows.Size = new System.Drawing.Size(769, 37);
             this.btnFindChromeWindows.TabIndex = 0;
-            this.btnFindChromeWindows.Text = "1. Find non-minimized Chrome windows with YouTube tabs";
+            this.btnFindChromeWindows.Text = "1. Find YouTube tabs in non-minimized Chrome windows";
             this.btnFindChromeWindows.UseVisualStyleBackColor = true;
             this.btnFindChromeWindows.Click += new System.EventHandler(this.btnFindYouTubeWindows_Click);
             // 
             // lstYouTubeWindows
             // 
+            this.lstYouTubeWindows.Enabled = false;
             this.lstYouTubeWindows.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstYouTubeWindows.FormattingEnabled = true;
             this.lstYouTubeWindows.ItemHeight = 18;
@@ -74,7 +75,7 @@
             this.btnSelectChromeWindow.Name = "btnSelectChromeWindow";
             this.btnSelectChromeWindow.Size = new System.Drawing.Size(769, 37);
             this.btnSelectChromeWindow.TabIndex = 2;
-            this.btnSelectChromeWindow.Text = "2. Select window from list above";
+            this.btnSelectChromeWindow.Text = "2. Select tab from list above";
             this.btnSelectChromeWindow.UseVisualStyleBackColor = true;
             this.btnSelectChromeWindow.Click += new System.EventHandler(this.btnSelectChromeWindow_Click);
             // 
@@ -86,7 +87,7 @@
             this.btnStartStop.Name = "btnStartStop";
             this.btnStartStop.Size = new System.Drawing.Size(769, 37);
             this.btnStartStop.TabIndex = 3;
-            this.btnStartStop.Text = "3. Start";
+            this.btnStartStop.Text = "3. Start monitoring tab title";
             this.btnStartStop.UseVisualStyleBackColor = true;
             this.btnStartStop.Click += new System.EventHandler(this.btnStartStop_Click);
             // 
@@ -126,10 +127,10 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(12, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(952, 18);
+            this.label2.Size = new System.Drawing.Size(672, 18);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Open YouTube tab in Google Chrome first (non-minimized) and select Chrome window " +
-    "below. The left-most YouTube tab in the window is used.";
+            this.label2.Text = "Open YouTube tab in Google Chrome first (don\'t minimize the window) and select Ch" +
+    "rome tab below.";
             // 
             // pictureBox1
             // 
@@ -186,7 +187,7 @@
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "YouTube Title For Yvonne v6 by Shane 2020-01-02";
+            this.Text = "YouTube Title For Yvonne v7 by Shane 2022-11-18";
             this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
