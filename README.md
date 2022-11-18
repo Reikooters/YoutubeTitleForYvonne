@@ -32,9 +32,9 @@ The tab title is automatically cleaned to get just the video title - i.e. it wil
 
 Once you have selected the tab as per step #4 above, you can now minimize the Google Chrome window and the application will still work. This means you can start a YouTube playlist and minimize the window and the currently playing video title will update when YouTube progresses to the next video in the playlist.
 
-This is possible using some magic where at each refresh interval, the Chrome window with the selected YouTube tab will be restored from being minimized, but it will be invisible and won't catch keys or clicks. The current title will then be retrieved and the window will be minimized again until the next refresh interval. During testing, this did not cause any issues while playing a game in full screen, so there should not be any side effects to this. If you do experience issues, you can leave the Chrome window non-minimized to prevent this behaviour.
+This is possible using some magic where at each refresh interval, the Chrome window with the selected YouTube tab will be restored from being minimized, but it will be invisible and won't catch keys or clicks. The current title will then be retrieved and the window will be minimized again until the next refresh interval. During testing, this did not cause any issues while playing a game in full screen, so there should not be any side effects to this. If you do experience issues, you can leave the Chrome window unminimized to prevent this behaviour.
 
-#### Reselect a new tab if you close or drag the select tab to another window
+#### Reselect a new tab if you close or drag the selected tab to another window
 
 If you close the selected YouTube tab or move it to a different window, come back to the application and start again by searching for YouTube tabs using button #1, then follow the process from the beginning. Moving the tab around within the same Chrome window by dragging it is OK and won't require reselecting the tab.
 
@@ -46,7 +46,7 @@ You can specify the Refresh Interval in seconds, as well as the output path and 
 
 These are settings are stored in `YoutubeTitleForYvvone.exe.config` in the application's folder.
 
-## Showing text in StreamLabs OBS
+## Showing a text overlay on your stream using StreamLabs OBS
 
 These instructions explain how to add a text file overlay to your stream using StreamLabs OBS (https://streamlabs.com/). The instructions are provided for information purposes and have nothing to do with this YoutubeTitleForYvonne application.
 
