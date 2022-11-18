@@ -6,6 +6,10 @@ This application is used to monitor a Google Chrome tab which has a YouTube vide
 
 You can then create an overlay in a streaming program such as Streamlabs OBS which shows the contents of the text file. This allows you to have music playing on YouTube in the background on your computer, and have the title of the video shown on-screen on your Twitch, YouTube, etc stream. Instructions on how to configure StreamLabs OBS to do this are below if needed.
 
+## Download
+
+Visit the [Releases](https://github.com/Reikooters/YoutubeTitleForYvonne/releases/latest) page to download the latest version.
+
 ## Installation
 
 All you need to do is simply unzip the application into its own folder and run `YoutubeTitleForYvvone.exe`. No installation process is required.
