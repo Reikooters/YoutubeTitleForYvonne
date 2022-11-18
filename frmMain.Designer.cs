@@ -127,10 +127,10 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(12, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(672, 18);
+            this.label2.Size = new System.Drawing.Size(813, 18);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Open YouTube tab in Google Chrome first (don\'t minimize the window) and select Ch" +
-    "rome tab below.";
+            this.label2.Text = "Open YouTube tab in Google Chrome first (don\'t minimize the window or make it ful" +
+    "l screen) and select Chrome tab below.";
             // 
             // pictureBox1
             // 
@@ -187,7 +187,7 @@
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "YouTube Title For Yvonne v7 by Shane 2022-11-18";
+            this.Text = "YouTube Title For Yvonne v8 by Shane 2022-11-19";
             this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

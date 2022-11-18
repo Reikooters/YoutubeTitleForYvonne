@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace YoutubeTitleForYvonne
@@ -120,7 +121,14 @@ namespace YoutubeTitleForYvonne
                 ThreadHelperClass.SetEnabled(this, btnSelectChromeWindow, false);
                 ThreadHelperClass.SetEnabled(this, btnStartStop, true);
 
-                MessageBox.Show("Selected: " + youtubeWindow.TabName + Environment.NewLine + Environment.NewLine + "If you close the selected YouTube tab or move it into a different window, come back to this application and start again by searching for YouTube tabs using button #1, then follow the process from the beginning. Moving the tab around within the same Chrome window by dragging it is OK and won't require reselecting the tab." + Environment.NewLine + Environment.NewLine + "You can now click Start monitoring (button #3) to begin saving the video title to file. See 'Options' to specify the output filename.", "Selected Chrome Window", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Selected: "
+                    + youtubeWindow.TabName + Environment.NewLine + Environment.NewLine
+                    + "It is now OK to minimize or make the Chrome window full screen if you desire."
+                    + Environment.NewLine + Environment.NewLine
+                    + "If you close the selected YouTube tab or move it into a different window, come back to this application and start again by searching for YouTube tabs using button #1, then follow the process from the beginning. Moving the tab around within the same Chrome window by dragging it is OK and won't require reselecting the tab."
+                    + Environment.NewLine + Environment.NewLine
+                    + "You can now click \"Start monitoring tab title\" (button #3) to begin saving the video title to file. See 'Options' to specify the output filename.",
+                    "Selected Chrome Window", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -136,7 +144,12 @@ namespace YoutubeTitleForYvonne
                     }
                     catch
                     {
-                        MessageBox.Show("The selected output file/folder:" + Environment.NewLine + outputFileName + Environment.NewLine + "is not writeable. Please change output filename under Options.", "Invalid Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("The selected output file/folder:"
+                            + Environment.NewLine
+                            + outputFileName
+                            + Environment.NewLine
+                            + "is not writeable. Please change output filename under Options.",
+                            "Invalid Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -188,9 +201,9 @@ namespace YoutubeTitleForYvonne
             {
                 MessageBox.Show(@"Google Chrome doesn't seem to be running.
 
-Make sure Google Chrome is running with the YouTube tab open and that the Chrome window is not minimized, then try again.
+Make sure Google Chrome is running with a YouTube tab open and that the Chrome window is not minimized or full screen, then try again.
 
-It is OK to minimize the Chrome window after this step is completed.", "No Google Chrome not found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+It is OK to minimize or make the Chrome window full screen after this step is completed.", "No Google Chrome not found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
@@ -324,6 +337,86 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
             return null;
         }
 
+        static List<Regex> filterRegex = new List<Regex>
+        {
+            new Regex(@"[\([［「【『]*\s*Official HD Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official 4K Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Music Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Lyrics Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Lyric Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Original Song MV[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Original Song[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Full Song/Official Lyrics[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Full Song[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Video HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Video 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Lyrics HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Lyrics 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Lyrics[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Official Audio[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Music Video HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Music Video 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Music Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Lyrics Video HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Lyrics Video 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Lyrics Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Lyric Video HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Lyric Video 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Lyric Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*HD Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*HD Audio[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*4K Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*4K HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*4KHD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*1080p HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*1080pHD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*M/V[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*MV[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*HD[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*4K[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*Official[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*Audio[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*Lyrics[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]+\s*Lyric[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\|\-]+\s*$", RegexOptions.Compiled),
+            new Regex(@"^\s*[\|\-]+", RegexOptions.Compiled),
+
+            /*
+            new Regex(@"\(Official Video\)", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\(Official Music Video\)", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\(Official Lyrics Video\)", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\(Official Lyric Video\)", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\[Official Video\]", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\[Official Music Video\]", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\[Official Lyrics Video\]", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"\[Official Lyric Video\]", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"［OFFICIAL VIDEO］", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"［OFFICIAL MUSIC VIDEO］", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"［OFFICIAL LYRICS VIDEO］", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"［OFFICIAL LYRIC VIDEO］", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"「OFFICIAL VIDEO」", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"「OFFICIAL MUSIC VIDEO」", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"「OFFICIAL LYRICS VIDEO」", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"「OFFICIAL LYRIC VIDEO」", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"【OFFICIAL VIDEO】", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"【OFFICIAL MUSIC VIDEO】", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"【OFFICIAL LYRICS VIDEO】", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"【OFFICIAL LYRIC VIDEO】", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"『OFFICIAL VIDEO』", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"『OFFICIAL MUSIC VIDEO』", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"『OFFICIAL LYRICS VIDEO』", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"『OFFICIAL LYRIC VIDEO』", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"Official Video", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"Official Music Video", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"Official Lyrics Video", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"Official Lyric Video", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            */
+        };
+
+        static Regex doubleSpaceRegex = new Regex(@"\s+", RegexOptions.Compiled);
+
         private string CleanYoutubeTitle(string name)
         {
             int youtubeIndex;
@@ -361,7 +454,23 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
                         }
                     }
 
-                    return name.Substring(startIndex, youtubeIndex - startIndex);
+                    // Crop " - YouTube" and (#) notifications from title.
+                    name = name.Substring(startIndex, youtubeIndex - startIndex);
+
+                    // Filter common "music video" words
+                    foreach (Regex regex in filterRegex)
+                    {
+                        name = regex.Replace(name, "");
+                    }
+
+                    // Convert double spaces to single space
+                    name = doubleSpaceRegex.Replace(name, " ");
+
+                    // Trim start/end of string
+                    name = name.Trim();
+
+                    // Return result
+                    return name;
                 }
             }
 
@@ -410,9 +519,9 @@ It is OK to minimize the Chrome window after this step is completed.", "No Googl
             {
                 MessageBox.Show(@"Google Chrome is open but could not find any non-minimized Chrome windows with YouTube tabs.
 
-Make sure the YouTube tab is open and that the Chrome window is not minimized, then try again.
+Make sure the YouTube tab is open and that the Chrome window is not minimized or full screen, then try again.
 
-It is OK to minimize the Chrome window after this step is completed.", "No YouTube tabs were found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+It is OK to minimize/full screen the Chrome window after this step is completed.", "No YouTube tabs were found.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -442,7 +551,14 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
                 {
                     if (String.IsNullOrEmpty(updatedTabName))
                     {
-                        ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Could not get YouTube title. Is selected window/tab closed? Try starting again from button #1.");
+                        if (selectedYoutubeWindow.elemTab.CurrentName == "YouTube")
+                        {
+                            ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "No video is playing.");
+                        }
+                        else
+                        {
+                            ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Could not get YouTube title. Is selected window/tab closed? Try starting again from button #1.");
+                        }
 
                         try
                         {
@@ -622,50 +738,5 @@ It is OK to minimize the Chrome window after this step is completed.", "No YouTu
                 }
             }
         }
-
-        /*
-        /// <summary>
-        /// Based on https://blogs.msdn.microsoft.com/winuiautomation/2015/08/06/finding-the-handle-of-the-window-that-contains-a-ui-automation-element/
-        /// </summary>
-        /// <param name="elem"></param>
-        /// <returns></returns>
-        private IntPtr GetHwndForAutomationElement(AutomationElement elem)
-        {
-            // Build up a condition to access elements whose NativeWindowHandle is not zero.
-            int propValueWindow = 0;
-
-            Condition conditionNativeWindowHandleZero =
-                new PropertyCondition(
-                    AutomationElement.NativeWindowHandleProperty, propValueWindow);
-
-            Condition conditionNativeWindowHandleNOTZero =
-                new NotCondition(conditionNativeWindowHandleZero);
-
-            // Now create a TreeWalker based on that condition.
-            TreeWalker treeWalker =
-                new TreeWalker(conditionNativeWindowHandleNOTZero);
-
-            // Set up a cache request such that when we find an ancestor of interest,
-            // we don't have to make more cross-process calls to get the data we're
-            // interested in. For this test, cache the name and bounding rect.
-            CacheRequest cacheRequestTest =
-                new CacheRequest();
-
-            cacheRequestTest.Add(AutomationElement.NameProperty);
-            cacheRequestTest.Add(AutomationElement.NativeWindowHandleProperty);
-
-            // Given that we only need the cached data, don't have UIA keep a
-            // live reference around to the ancestor.
-            cacheRequestTest.AutomationElementMode =
-                AutomationElementMode.Full;
-
-            // Now get the first ancestor with a not-zero NativeWindowHandle.
-            AutomationElement elementAncestorWithWindow =
-                treeWalker.Normalize(
-                    elem, cacheRequestTest);
-
-            return new IntPtr(elementAncestorWithWindow.Cached.NativeWindowHandle);
-        }
-        */
     }
 }

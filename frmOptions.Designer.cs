@@ -36,6 +36,8 @@
             this.txtOutputFilename = new System.Windows.Forms.TextBox();
             this.btnOutputFileBrowse = new System.Windows.Forms.Button();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.lnklblProjectUrl = new System.Windows.Forms.LinkLabel();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshInterval)).BeginInit();
             this.SuspendLayout();
             // 
@@ -77,7 +79,7 @@
             // 
             this.btnSave.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(700, 74);
+            this.btnSave.Location = new System.Drawing.Point(700, 111);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(120, 37);
             this.btnSave.TabIndex = 5;
@@ -89,7 +91,7 @@
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(574, 73);
+            this.btnCancel.Location = new System.Drawing.Point(574, 111);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(120, 37);
             this.btnCancel.TabIndex = 4;
@@ -131,15 +133,39 @@
             // 
             this.saveFileDialog.OverwritePrompt = false;
             // 
+            // lnklblProjectUrl
+            // 
+            this.lnklblProjectUrl.AutoSize = true;
+            this.lnklblProjectUrl.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lnklblProjectUrl.Location = new System.Drawing.Point(172, 81);
+            this.lnklblProjectUrl.Name = "lnklblProjectUrl";
+            this.lnklblProjectUrl.Size = new System.Drawing.Size(359, 18);
+            this.lnklblProjectUrl.TabIndex = 6;
+            this.lnklblProjectUrl.TabStop = true;
+            this.lnklblProjectUrl.Text = "https://github.com/Reikooters/YoutubeTitleForYvonne";
+            this.lnklblProjectUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnklblProjectUrl_LinkClicked);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(13, 81);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(89, 18);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Project URL";
+            // 
             // frmOptions
             // 
             this.AcceptButton = this.btnSave;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(832, 122);
+            this.ClientSize = new System.Drawing.Size(832, 160);
+            this.Controls.Add(this.lnklblProjectUrl);
             this.Controls.Add(this.btnOutputFileBrowse);
             this.Controls.Add(this.txtOutputFilename);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
@@ -170,5 +196,7 @@
         private System.Windows.Forms.TextBox txtOutputFilename;
         private System.Windows.Forms.Button btnOutputFileBrowse;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.LinkLabel lnklblProjectUrl;
+        private System.Windows.Forms.Label label3;
     }
 }

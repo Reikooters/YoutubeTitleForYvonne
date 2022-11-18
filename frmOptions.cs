@@ -96,5 +96,11 @@ namespace YoutubeTitleForYvonne
                 MessageBox.Show("The selected output file/folder:" + Environment.NewLine + OutputFilename + Environment.NewLine + "is not writeable. Please try again.", "Invalid Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void lnklblProjectUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Navigate to a URL.
+            System.Diagnostics.Process.Start(lnklblProjectUrl.Text);
+        }
     }
 }

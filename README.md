@@ -16,7 +16,7 @@ The application requires the .NET Framework 4.5 runtime to be installed on your 
 
 The application is straight forward to use. Instructions are also provided within the application, but the steps are provided here:
 
-1. First, open Google Chrome and navigate to YouTube. Do not minimize the Google Chrome window, as the application will not be able to scan the tabs in the window otherwise.
+1. First, open Google Chrome and navigate to YouTube. Do not minimize or make the Google Chrome window full screen, as the application will not be able to scan the tabs in the window otherwise.
 2. In the application, click the "Find YouTube tabs in non-minimized Chrome windows" button. This will scan all of your Google Chrome windows to find all of your open YouTube tabs. This may take a few moments (depending on how many Chrome windows and tabs you have open in total).
 3. Once scanning is finished, a list of the YouTube tabs that were found will be displayed. Select the tab from the list which you intend to use for playing music.
 4. Click the "Select tab from list above" button. The application will remember your choice and disable the list.
@@ -26,11 +26,15 @@ The application is straight forward to use. Instructions are also provided withi
 
 Click the "Options" button in the application to configure the interval and output filename.
 
-The tab title is automatically cleaned to get just the video title - i.e. it will remove " - YouTube" from the end of the tab title, as well as YouTube notifications e.g. "(1)" at the start of the tab title.
+The tab title is automatically cleaned to get just the video title. It will attempt to remove:
 
-#### Once tab is selected, you can now minimize the window if desired
+- " - YouTube" from the end of the tab title
+- YouTube notifications, e.g. "(1)" at the start of the tab title.
+- Unnecessary text commonly included in music video titles that are not part of the song name, e.g. "Official Video", "Lyrics Video", "Music Video", "MV", "HD Video", etc.
 
-Once you have selected the tab as per step #4 above, you can now minimize the Google Chrome window and the application will still work. This means you can start a YouTube playlist and minimize the window and the currently playing video title will update when YouTube progresses to the next video in the playlist.
+#### Once tab is selected, you can now minimize/full screen the window if desired
+
+Once you have selected the tab as per step #4 above, you can now minimize or make the Google Chrome window full screen and the application will still work. This means that you could start a YouTube playlist and minimize the window - the application will still pick up the currently playing video title when YouTube progresses to the next video in the playlist.
 
 This is possible using some magic where at each refresh interval, the Chrome window with the selected YouTube tab will be restored from being minimized, but it will be invisible and won't catch keys or clicks. The current title will then be retrieved and the window will be minimized again until the next refresh interval. During testing, this did not cause any issues while playing a game in full screen, so there should not be any side effects to this. If you do experience issues, you can leave the Chrome window unminimized to prevent this behaviour.
 
@@ -44,7 +48,7 @@ To configure the application, click the "Options" button in the top right.
 
 You can specify the Refresh Interval in seconds, as well as the output path and filename of the .txt file which will be written to.
 
-These are settings are stored in `YoutubeTitleForYvvone.exe.config` in the application's folder.
+These settings are stored in `YoutubeTitleForYvvone.exe.config` in the application's folder.
 
 ## Showing a text overlay on your stream using StreamLabs OBS
 
@@ -56,7 +60,7 @@ These instructions explain how to add a text file overlay to your stream using S
 4. Give the source a name, e.g. "Now Playing" and click the "Add Source" button.
 5. Next to the "Text" field, tick the "Read from file" checkbox.
 6. Click the "Browse" button that appears.
-7. Choose the text file which is written to by YoutubeTitleForYvonne - by default this is "nowplaying.txt" in the application folder, but you can also configure this in the Options screen.
+7. Choose the text file which is written to by YoutubeTitleForYvonne - by default this is `nowplaying.txt` in the application folder, but you can also configure this in the Options screen.
 8. Configure the font, color and styles to your liking.
 9. Click the "Done" button.
 
