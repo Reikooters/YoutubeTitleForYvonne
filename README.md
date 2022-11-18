@@ -20,13 +20,13 @@ The application is straight forward to use. Instructions are also provided withi
 2. In the application, click the "Find YouTube tabs in non-minimized Chrome windows" button. This will scan all of your Google Chrome windows to find all of your open YouTube tabs. This may take a few moments (depending on how many Chrome windows and tabs you have open in total).
 3. Once scanning is finished, a list of the YouTube tabs that were found will be displayed. Select the tab from the list which you intend to use for playing music.
 4. Click the "Select tab from list above" button. The application will remember your choice and disable the list.
-5. Finally, click the "Start monitoring tab title" button.  The title of the YouTube tab will now be saved to a text file on a default interval of every 5 seconds. The video title is written to the file "nowplaying.txt" within the application's directory by default.
+5. Finally, click the "Start monitoring tab title" button.  The title of the YouTube tab will now be saved to a text file on a default interval of every 5 seconds. The video title is written to the file `nowplaying.txt` within the application's directory by default.
 
 #### Notes
 
 Click the "Options" button in the application to configure the interval and output filename.
 
-The tab title is automatically cleaned to get just the video title - i.e. it will remove the " - YouTube" from the end of the tab title, as well as YouTube notifications e.g. "(1)" at the start of the tab title.
+The tab title is automatically cleaned to get just the video title - i.e. it will remove " - YouTube" from the end of the tab title, as well as YouTube notifications e.g. "(1)" at the start of the tab title.
 
 #### Once tab is selected, you can now minimize the window if desired
 
@@ -60,7 +60,9 @@ These instructions explain how to add a text file overlay to your stream using S
 8. Configure the font, color and styles to your liking.
 9. Click the "Done" button.
 
-The text will now be shown on-screen. To improve the visual appearance, follow these steps to setup scrolling. This makes the text scroll within a constrained area like a ticker, similar to the old HTML marquee effect from the 1990s/2000s.
+#### Scrolling/ticker effect
+
+To improve the visual appearance, follow these steps to setup scrolling. This makes the text scroll within a constrained area like a ticker, similar to the old HTML marquee effect from the 1990s/2000s.
 
 1. Rght click on the text source you created in the "Sources" panel.
 2. Choose Filters > Edit Filters.
