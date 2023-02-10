@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -70,7 +71,9 @@ namespace YoutubeTitleForYvonne
         YoutubeWindow selectedYoutubeWindow { get; set; }
         string lastPlayingTitle { get; set; }
         string outputFileName { get; set; }
+        string chromeLanguage { get; set; }
 
+        public const string DefaultChromeLanguage = "English";
         public const int DefaultRefreshInterval = 5;
 
         private const uint WM_MOUSELEAVE = 0x02A3;
@@ -87,6 +90,120 @@ namespace YoutubeTitleForYvonne
         private readonly CUIAutomation _automation;
         IUIAutomationCondition _automationCondition;
         IUIAutomationTreeWalker _automationTreeWalker;
+
+        public static Dictionary<string, string> languages = new Dictionary<string, string>
+        {
+            { "af", "Afrikaans" },
+            { "am", "Amharic" },
+            { "ar", "Arabic" },
+            { "bg", "Bulgarian" },
+            { "bn", "Bengali" },
+            { "ca", "Catalan" },
+            { "cs", "Czech" },
+            { "da", "Danish" },
+            { "de", "German" },
+            { "el", "Greek" },
+            { "en", "English" },
+            { "es", "Spanish" },
+            { "et", "Estonian" },
+            { "fa", "Persian" },
+            { "fi", "Finnish" },
+            { "fil", "Filipino" },
+            { "fr", "French" },
+            { "gu", "Gujarati" },
+            { "he", "Hebrew" },
+            { "hi", "Hindi" },
+            { "hr", "Croatian" },
+            { "hu", "Hungarian" },
+            { "id", "Indonesian" },
+            { "it", "Italian" },
+            { "ja", "Japanese" },
+            { "kn", "Kannada" },
+            { "ko", "Korean" },
+            { "lt", "Lithuanian" },
+            { "lv", "Latvian" },
+            { "ml", "Malayalam" },
+            { "mr", "Marathi" },
+            { "ms", "Malay" },
+            { "nb", "Norwegian Bokmål" },
+            { "nl", "Dutch" },
+            { "pl", "Polish" },
+            { "pt-BR", "Portuguese (Brazil)" },
+            { "pt-PT", "Portuguese (Portugal)" },
+            { "ro", "Romanian" },
+            { "ru", "Russian" },
+            { "sk", "Slovak" },
+            { "sl", "Slovenian" },
+            { "sr", "Serbian" },
+            { "sv", "Swedish" },
+            { "sw", "Swahili" },
+            { "ta", "Tamil" },
+            { "te", "Telugu" },
+            { "th", "Thai" },
+            { "tr", "Turkish" },
+            { "uk", "Ukrainian" },
+            { "ur", "Urdu" },
+            { "vi", "Vietnamese" },
+            { "zh-CN", "Chinese (China)" },
+            { "zh-TW", "Chinese (Taiwan)" },
+        };
+
+        public static Dictionary<string, string> newTabString = new Dictionary<string, string>
+        {
+            { "Afrikaans", "Nuwe oortjie" },
+            { "Amharic", "አዲስ ትር" },
+            { "Arabic", "علامة تبويب جديدة" },
+            { "Bulgarian", "Нов раздел" },
+            { "Bengali", "নতুন ট্যাব" },
+            { "Catalan", "Pestanya nova" },
+            { "Czech", "Nová karta" },
+            { "Danish", "Ny fane" },
+            { "German", "Neuer Tab" },
+            { "Greek", "Νέα καρτέλα" },
+            { "English", "New tab" },
+            { "Spanish", "Nueva pestaña" },
+            { "Estonian", "Uus vaheleht" },
+            { "Persian", "برگه جدید" },
+            { "Finnish", "Uusi välilehti" },
+            { "Filipino", "Bagong tab" },
+            { "French", "Nouvel onglet" },
+            { "Gujarati", "નવું ટૅબ" },
+            { "Hebrew", "כרטיסייה חדשה" },
+            { "Hindi", "नया टैब" },
+            { "Croatian", "Nova kartica" },
+            { "Hungarian", "Új lap" },
+            { "Indonesian", "Tab baru" },
+            { "Italian", "Nuova scheda" },
+            { "Japanese", "新しいタブ" },
+            { "Kannada", "ಹೊಸ ಟ್ಯಾಬ್" },
+            { "Korean", "새 탭" },
+            { "Lithuanian", "Naujas skirtukas" },
+            { "Latvian", "Jauna cilne" },
+            { "Malayalam", "പുതിയ ടാബ്" },
+            { "Marathi", "नवीन टॅब" },
+            { "Malay", "Tab baharu" },
+            { "Norwegian Bokmål", "Ny fane" },
+            { "Dutch", "Nieuw tabblad" },
+            { "Polish", "Nowa karta" },
+            { "Portuguese (Brazil)", "Nova guia" },
+            { "Portuguese (Portugal)", "Novo separador" },
+            { "Romanian", "Filă nouă" },
+            { "Russian", "Новая вкладка" },
+            { "Slovak", "Nová karta" },
+            { "Slovenian", "Nov zavihek" },
+            { "Serbian", "Нова картица" },
+            { "Swedish", "Ny flik" },
+            { "Swahili", "Kichupo kipya" },
+            { "Tamil", "புதிய தாவல்" },
+            { "Telugu", "కొత్త‌ ట్యాబ్" },
+            { "Thai", "แท็บใหม่" },
+            { "Turkish", "Yeni sekme" },
+            { "Ukrainian", "Нова вкладка" },
+            { "Urdu", "نیا ٹیب" },
+            { "Vietnamese", "Thẻ mới" },
+            { "Chinese (China)", "打开新的标签页" },
+            { "Chinese (Taiwan)", "新增分頁" },
+        };
 
         public frmMain()
         {
@@ -273,6 +390,7 @@ It is OK to minimize or make the Chrome window full screen after this step is co
             }
 
             bool foundYoutubeTabInWindow = false;
+            string newTabStringToFind = newTabString[chromeLanguage].ToUpper();
 
             // Loop through all child elements of the Chrome window
             for (int i = 0; i < result.Length; ++i)
@@ -284,7 +402,7 @@ It is OK to minimize or make the Chrome window full screen after this step is co
                 // then we've found a child element of the tab strip.
                 // Normally we expect to only find one of these per Chrome Window, however, a user-created blank tab will also
                 // be named "New Tab" - we also accept this, as it still helps us find the Chrome window's tab strip.
-                if (element.CurrentName == "New Tab")
+                if (element.CurrentName != null && element.CurrentName.ToUpper() == newTabStringToFind)
                 {
                     // Get the parent element, this will be the tab strip.
                     IUIAutomationElement elemTabStrip = _automationTreeWalker.GetParentElement(element);
@@ -351,6 +469,7 @@ It is OK to minimize or make the Chrome window full screen after this step is co
             new Regex(@"[\([［「【『]*\s*Official Video HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]*\s*Official Video 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]*\s*Official Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Vídeo Official[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Portuguese
             new Regex(@"[\([［「【『]*\s*Official Lyrics HD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]*\s*Official Lyrics 4K[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]*\s*Official Lyrics[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
@@ -373,6 +492,7 @@ It is OK to minimize or make the Chrome window full screen after this step is co
             new Regex(@"[\([［「【『]*\s*1080pHD[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]*\s*M/V[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]*\s*Video[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            new Regex(@"[\([［「【『]*\s*Vídeo[\)\]］」】』]*", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Portuguese
             new Regex(@"[\([［「【『]+\s*MV[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]+\s*HD[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
             new Regex(@"[\([［「【『]+\s*4K[\)\]］」】』]+", RegexOptions.Compiled | RegexOptions.IgnoreCase),
@@ -691,6 +811,31 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+            // Get Chrome Language
+            chromeLanguage = ConfigurationManager.AppSettings.Get("ChromeLanguage");
+
+            if (String.IsNullOrEmpty(chromeLanguage))
+            {
+                // Try to determine the language based on the user's Windows language
+                CultureInfo ci = CultureInfo.InstalledUICulture;
+
+                string foundLanguage;
+
+                if (languages.TryGetValue(ci.TwoLetterISOLanguageName, out foundLanguage))
+                {
+                    chromeLanguage = foundLanguage;
+                }
+                else if (languages.TryGetValue(ci.Name, out foundLanguage))
+                {
+                    chromeLanguage = foundLanguage;
+                }
+                else
+                {
+                    chromeLanguage = DefaultChromeLanguage;
+                }
+            }
+
+            // Get refresh interval
             if (int.TryParse(ConfigurationManager.AppSettings.Get("RefreshInterval"), out int refreshInterval))
             {
                 tmrUpdateCurrentlyPlaying.Interval = refreshInterval * 1000;
@@ -723,16 +868,22 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
 
                     // Open App.Config of executable
                     System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                    // Add an Application Setting.
+
+                    // Add an ChromeLanguage setting.
+                    config.AppSettings.Settings.Remove("ChromeLanguage");
+                    config.AppSettings.Settings.Add("ChromeLanguage", form.ChromeLanguage);
+
+                    // Add an RefreshInterval setting.
                     config.AppSettings.Settings.Remove("RefreshInterval");
                     config.AppSettings.Settings.Add("RefreshInterval", Convert.ToInt32(form.RefreshInterval).ToString());
 
-                    // Add an Application Setting.
+                    // Add an OutputFilename setting.
                     config.AppSettings.Settings.Remove("OutputFilename");
                     config.AppSettings.Settings.Add("OutputFilename", form.OutputFilename);
 
                     // Save the configuration file.
                     config.Save(ConfigurationSaveMode.Modified);
+
                     // Force a reload of a changed section.
                     ConfigurationManager.RefreshSection("appSettings");
                 }

@@ -14,17 +14,19 @@ Visit the [Releases](https://github.com/Reikooters/YoutubeTitleForYvonne/release
 
 All you need to do is simply unzip the application into its own folder and run `YoutubeTitleForYvvone.exe`. No installation process is required.
 
-The application requires the .NET Framework 4.5 runtime to be installed on your computer. You should already have this installed on your computer from Windows Updates if you are using Windows 8 or above. In case you do need to install it manually, you can download it here: https://www.microsoft.com/en-gb/download/details.aspx?id=30653
+The application requires the .NET Framework 4.6.2 runtime to be installed on your computer. You should already have this installed on your computer from Windows Updates if you are using Windows 8 or above. In case you do need to install it manually, you can download it here: https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net462-offline-installer
 
 ## How to use
 
-The application is straight forward to use. Instructions are also provided within the application, but the steps are provided here:
+The application is straight forward to use. Instructions are also provided within the application, but the steps are provided here.
 
 1. First, open Google Chrome and navigate to YouTube. For now, do not minimize or make the Google Chrome window full screen, as the application will not be able to scan the tabs in the window otherwise (you'll be able to minimize the window later).
 2. In the application, click the "Find YouTube tabs in non-minimized Chrome windows" button. This will scan all of your Google Chrome windows to find all of your open YouTube tabs. This may take a few moments (depending on how many Chrome windows and tabs you have open in total).
 3. Once scanning is finished, a list of the YouTube tabs that were found will be displayed. Select the tab from the list which you intend to use for playing music.
 4. Click the "Select tab from list above" button. The application will remember your choice and disable the list.
 5. Finally, click the "Start monitoring tab title" button.  The title of the YouTube tab will now be saved to a text file on a default interval of every 5 seconds. The video title is written to the file `nowplaying.txt` within the application's directory by default.
+
+If you don't get any YouTube tabs in the results in step 2 above, try clicking the "Options" button and check to make sure the specified "Chrome Language" matches the display language of your Google Chrome. The application will attempt to automatically detect the language based on your Windows language, but if the setting is incorrect, then choose the correct option and try again.
 
 ### Notes
 

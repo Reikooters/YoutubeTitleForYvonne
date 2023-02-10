@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Configuration;
-using System.Security;
-using System.Security.Permissions;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace YoutubeTitleForYvonne
 {
     public partial class frmOptions : Form
     {
+        public string ChromeLanguage { get; set; } = "";
         public decimal RefreshInterval { get; set; }
         public string OutputFilename { get; set; } = "";
 
@@ -18,6 +18,32 @@ namespace YoutubeTitleForYvonne
 
         private void frmOptions_Load(object sender, EventArgs e)
         {
+            // Get Chrome Language
+            ChromeLanguage = ConfigurationManager.AppSettings.Get("ChromeLanguage");
+
+            if (String.IsNullOrEmpty(ChromeLanguage))
+            {
+                // Try to determine the language based on the user's Windows language
+                CultureInfo ci = CultureInfo.InstalledUICulture;
+
+                string foundLanguage;
+
+                if (frmMain.languages.TryGetValue(ci.TwoLetterISOLanguageName, out foundLanguage))
+                {
+                    ChromeLanguage = foundLanguage;
+                }
+                else if (frmMain.languages.TryGetValue(ci.Name, out foundLanguage))
+                {
+                    ChromeLanguage = foundLanguage;
+                }
+                else
+                {
+                    ChromeLanguage = frmMain.DefaultChromeLanguage;
+                }
+            }
+
+            cmbLanguage.SelectedItem = ChromeLanguage;
+
             // Get refresh interval
             if (int.TryParse(ConfigurationManager.AppSettings.Get("RefreshInterval"), out int refreshInterval))
             {
@@ -77,15 +103,13 @@ namespace YoutubeTitleForYvonne
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            // Check output file is writable
-            PermissionSet permissionSet = new PermissionSet(PermissionState.None);
-
             if (String.IsNullOrEmpty(txtOutputFilename.Text))
             {
                 txtOutputFilename.Text = OutputFilename;
                 MessageBox.Show("The output file will default to:" + Environment.NewLine + OutputFilename, "Default Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
+            // Check output file is writable
             try
             {
                 System.IO.File.WriteAllText(OutputFilename, "");
@@ -94,6 +118,7 @@ namespace YoutubeTitleForYvonne
             {
                 this.DialogResult = DialogResult.None;
                 MessageBox.Show("The selected output file/folder:" + Environment.NewLine + OutputFilename + Environment.NewLine + "is not writeable. Please try again.", "Invalid Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
         }
 
@@ -101,6 +126,34 @@ namespace YoutubeTitleForYvonne
         {
             // Navigate to a URL.
             System.Diagnostics.Process.Start(lnklblProjectUrl.Text);
+        }
+
+        private void cmbLanguage_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChromeLanguage = cmbLanguage.SelectedItem?.ToString();
+
+            if (String.IsNullOrEmpty(ChromeLanguage))
+            {
+                // Try to determine the language based on the user's Windows language
+                CultureInfo ci = CultureInfo.InstalledUICulture;
+
+                string foundLanguage;
+
+                if (frmMain.languages.TryGetValue(ci.TwoLetterISOLanguageName, out foundLanguage))
+                {
+                    ChromeLanguage = foundLanguage;
+                }
+                else if (frmMain.languages.TryGetValue(ci.Name, out foundLanguage))
+                {
+                    ChromeLanguage = foundLanguage;
+                }
+                else
+                {
+                    ChromeLanguage = frmMain.DefaultChromeLanguage;
+                }
+
+                //cmbLanguage.SelectedItem = ChromeLanguage;
+            }
         }
     }
 }
