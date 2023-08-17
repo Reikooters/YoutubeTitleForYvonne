@@ -72,9 +72,15 @@ namespace YoutubeTitleForYvonne
         string lastPlayingTitle { get; set; }
         string outputFileName { get; set; }
         string chromeLanguage { get; set; }
+        string textSeparatorType { get; set; }
+        string textSeparator { get; set; }
+        int minimumTextLength { get; set; }
 
         public const string DefaultChromeLanguage = "English";
         public const int DefaultRefreshInterval = 5;
+        public const string DefaultTextSeparatorType = "None";
+        public const string DefaultTextSeparator = " ~ ";
+        public const int DefaultMinimumTextLength = 40;
 
         private const uint WM_MOUSELEAVE = 0x02A3;
 
@@ -447,7 +453,7 @@ It is OK to minimize or make the Chrome window full screen after this step is co
         {
             string name = elemTab.CurrentName;
 
-            if (!String.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
+            if (!string.IsNullOrEmpty(name) && name.IndexOf(" - YouTube") != -1)
             {
                 return CleanYoutubeTitle(name);
             }
@@ -543,7 +549,7 @@ It is OK to minimize or make the Chrome window full screen after this step is co
             int startIndex = 0;
             bool looksLikeNotificationNumber = false;
 
-            if (!String.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name))
             {
                 // Remove " - YouTube" from tab title
                 youtubeIndex = name.IndexOf(" - YouTube");
@@ -669,7 +675,7 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
 
                 if (ThreadHelperClass.GetText(this, btnStartStop) == "3. Stop monitoring tab title")
                 {
-                    if (String.IsNullOrEmpty(updatedTabName))
+                    if (string.IsNullOrEmpty(updatedTabName))
                     {
                         if (selectedYoutubeWindow.elemTab.CurrentName == "YouTube")
                         {
@@ -706,13 +712,38 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
 
                         try
                         {
-                            if (!debug)
+                            string textFileContent;
+
+                            // If using space padding...
+                            if (textSeparatorType == "Space Padding")
                             {
-                                System.IO.File.WriteAllText(outputFileName, updatedTabName);
+                                // Pad end of string with spaces if text length is below minimum,
+                                // otherwise just add a single space as a separator.
+                                if (updatedTabName.Length < minimumTextLength)
+                                {
+                                    textFileContent = updatedTabName.PadRight(minimumTextLength, ' ');
+                                }
+                                else
+                                {
+                                    textFileContent = updatedTabName + " ";
+                                }
+                            }
+                            else if (textSeparatorType == "Custom")
+                            {
+                                textFileContent = updatedTabName + textSeparator;
                             }
                             else
                             {
-                                System.IO.File.AppendAllText(outputFileName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + updatedTabName + Environment.NewLine);
+                                textFileContent = updatedTabName + " ";
+                            }
+
+                            if (!debug)
+                            {
+                                System.IO.File.WriteAllText(outputFileName, textFileContent);
+                            }
+                            else
+                            {
+                                System.IO.File.AppendAllText(outputFileName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": " + textFileContent + Environment.NewLine);
                             }
                         }
                         catch
@@ -727,7 +758,7 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
                     ThreadHelperClass.SetVisible(this, progressBar, false);
                 }
             }
-            catch when (debug == false)
+            catch when (!debug)
             {
                 ThreadHelperClass.SetText(this, lblCurrentlyPlaying, "Could not get YouTube title. Is selected window/tab closed? Try starting again from button #1.");
 
@@ -746,7 +777,7 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
 
         private void bgwUpdateCurrentlyPlaying_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (btnStartStop.Text == "3. Stop monitoring tab title" && btnStartStop.Enabled == true)
+            if (btnStartStop.Text == "3. Stop monitoring tab title" && btnStartStop.Enabled)
             {
                 tmrUpdateCurrentlyPlaying.Enabled = true;
                 progressBar.Visible = false;
@@ -814,7 +845,7 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
             // Get Chrome Language
             chromeLanguage = ConfigurationManager.AppSettings.Get("ChromeLanguage");
 
-            if (String.IsNullOrEmpty(chromeLanguage))
+            if (string.IsNullOrEmpty(chromeLanguage))
             {
                 // Try to determine the language based on the user's Windows language
                 CultureInfo ci = CultureInfo.InstalledUICulture;
@@ -848,9 +879,35 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
             // Get output filename
             outputFileName = ConfigurationManager.AppSettings.Get("OutputFilename");
 
-            if (String.IsNullOrEmpty(outputFileName))
+            if (string.IsNullOrEmpty(outputFileName))
             {
                 outputFileName = System.IO.Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\nowplaying.txt";
+            }
+
+            // Get text separator type
+            textSeparatorType = ConfigurationManager.AppSettings.Get("TextSeparatorType");
+
+            if (string.IsNullOrEmpty(textSeparatorType))
+            {
+                textSeparatorType = DefaultTextSeparatorType;
+            }
+
+            // Get minimum text length
+            if (int.TryParse(ConfigurationManager.AppSettings.Get("MinimumTextLength"), out int parsedMinimumTextLength))
+            {
+                minimumTextLength = parsedMinimumTextLength;
+            }
+            else
+            {
+                minimumTextLength = DefaultMinimumTextLength;
+            }
+
+            // Get text separator
+            textSeparator = ConfigurationManager.AppSettings.Get("TextSeparator");
+
+            if (textSeparator == null)
+            {
+                textSeparator = DefaultTextSeparator;
             }
         }
 
@@ -865,9 +922,12 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
                     tmrUpdateCurrentlyPlaying.Interval = Convert.ToInt32(form.RefreshInterval) * 1000;
                     outputFileName = form.OutputFilename;
                     lastPlayingTitle = null; // Force file write on next update
+                    textSeparatorType = form.TextSeparatorType;
+                    minimumTextLength = Convert.ToInt32(form.MinimumTextLength);
+                    textSeparator = form.TextSeparator;
 
                     // Open App.Config of executable
-                    System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
                     // Add an ChromeLanguage setting.
                     config.AppSettings.Settings.Remove("ChromeLanguage");
@@ -880,6 +940,18 @@ It is OK to minimize/full screen the Chrome window after this step is completed.
                     // Add an OutputFilename setting.
                     config.AppSettings.Settings.Remove("OutputFilename");
                     config.AppSettings.Settings.Add("OutputFilename", form.OutputFilename);
+
+                    // Add an TextSeparatorType setting.
+                    config.AppSettings.Settings.Remove("TextSeparatorType");
+                    config.AppSettings.Settings.Add("TextSeparatorType", form.TextSeparatorType);
+
+                    // Add an MinimumTextLength setting.
+                    config.AppSettings.Settings.Remove("MinimumTextLength");
+                    config.AppSettings.Settings.Add("MinimumTextLength", Convert.ToInt32(form.MinimumTextLength).ToString());
+
+                    // Add an TextSeparator setting.
+                    config.AppSettings.Settings.Remove("TextSeparator");
+                    config.AppSettings.Settings.Add("TextSeparator", form.TextSeparator);
 
                     // Save the configuration file.
                     config.Save(ConfigurationSaveMode.Modified);

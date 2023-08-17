@@ -10,6 +10,9 @@ namespace YoutubeTitleForYvonne
         public string ChromeLanguage { get; set; } = "";
         public decimal RefreshInterval { get; set; }
         public string OutputFilename { get; set; } = "";
+        public string TextSeparatorType { get; set; } = "";
+        public string TextSeparator { get; set; } = "";
+        public decimal MinimumTextLength { get; set; }
 
         public frmOptions()
         {
@@ -21,7 +24,7 @@ namespace YoutubeTitleForYvonne
             // Get Chrome Language
             ChromeLanguage = ConfigurationManager.AppSettings.Get("ChromeLanguage");
 
-            if (String.IsNullOrEmpty(ChromeLanguage))
+            if (string.IsNullOrEmpty(ChromeLanguage))
             {
                 // Try to determine the language based on the user's Windows language
                 CultureInfo ci = CultureInfo.InstalledUICulture;
@@ -47,24 +50,73 @@ namespace YoutubeTitleForYvonne
             // Get refresh interval
             if (int.TryParse(ConfigurationManager.AppSettings.Get("RefreshInterval"), out int refreshInterval))
             {
-                numRefreshInterval.Value = refreshInterval;
+                RefreshInterval = refreshInterval;
             }
             else
             {
-                numRefreshInterval.Value = frmMain.DefaultRefreshInterval;
+                RefreshInterval = frmMain.DefaultRefreshInterval;
             }
 
-            RefreshInterval = numRefreshInterval.Value;
+            numRefreshInterval.Value = RefreshInterval;
 
             // Get output filename
             OutputFilename = ConfigurationManager.AppSettings.Get("OutputFilename");
 
-            if (String.IsNullOrEmpty(OutputFilename))
+            if (string.IsNullOrEmpty(OutputFilename))
             {
                 OutputFilename = System.IO.Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\nowplaying.txt";
             }
 
             txtOutputFilename.Text = OutputFilename;
+
+            // Get text separator type
+            TextSeparatorType = ConfigurationManager.AppSettings.Get("TextSeparatorType");
+
+            if (string.IsNullOrEmpty(TextSeparatorType))
+            {
+                TextSeparatorType = frmMain.DefaultTextSeparatorType;
+            }
+
+            cmbTextSeparator.SelectedItem = TextSeparatorType;
+
+            // Enable/Disable text input based on TextSeparatorType value
+            if (TextSeparatorType == "None")
+            {
+                txtTextSeparator.Enabled = false;
+                numMinimumTextLength.Enabled = false;
+            }
+            else if (TextSeparatorType == "Space Padding")
+            {
+                txtTextSeparator.Enabled = false;
+                numMinimumTextLength.Enabled = true;
+            }
+            else if (TextSeparatorType == "Custom")
+            {
+                txtTextSeparator.Enabled = true;
+                numMinimumTextLength.Enabled = false;
+            }
+
+            // Get minimum text length
+            if (int.TryParse(ConfigurationManager.AppSettings.Get("MinimumTextLength"), out int parsedMinimumTextLength))
+            {
+                MinimumTextLength = parsedMinimumTextLength;
+            }
+            else
+            {
+                MinimumTextLength = frmMain.DefaultMinimumTextLength;
+            }
+
+            numMinimumTextLength.Value = MinimumTextLength;
+
+            // Get text separator
+            TextSeparator = ConfigurationManager.AppSettings.Get("TextSeparator");
+
+            if (TextSeparator == null)
+            {
+                TextSeparator = frmMain.DefaultTextSeparator;
+            }
+
+            txtTextSeparator.Text = TextSeparator;
         }
 
         private void numRefreshInterval_ValueChanged(object sender, EventArgs e)
@@ -94,7 +146,7 @@ namespace YoutubeTitleForYvonne
         {
             OutputFilename = txtOutputFilename.Text;
 
-            if (String.IsNullOrEmpty(OutputFilename))
+            if (string.IsNullOrEmpty(OutputFilename))
             {
                 OutputFilename = System.IO.Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + @"\nowplaying.txt";
                 //txtOutputFilename.Text = OutputFilename;
@@ -103,7 +155,7 @@ namespace YoutubeTitleForYvonne
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(txtOutputFilename.Text))
+            if (string.IsNullOrEmpty(txtOutputFilename.Text))
             {
                 txtOutputFilename.Text = OutputFilename;
                 MessageBox.Show("The output file will default to:" + Environment.NewLine + OutputFilename, "Default Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -118,7 +170,6 @@ namespace YoutubeTitleForYvonne
             {
                 this.DialogResult = DialogResult.None;
                 MessageBox.Show("The selected output file/folder:" + Environment.NewLine + OutputFilename + Environment.NewLine + "is not writeable. Please try again.", "Invalid Output Filename", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
         }
 
@@ -132,7 +183,7 @@ namespace YoutubeTitleForYvonne
         {
             ChromeLanguage = cmbLanguage.SelectedItem?.ToString();
 
-            if (String.IsNullOrEmpty(ChromeLanguage))
+            if (string.IsNullOrEmpty(ChromeLanguage))
             {
                 // Try to determine the language based on the user's Windows language
                 CultureInfo ci = CultureInfo.InstalledUICulture;
@@ -153,6 +204,42 @@ namespace YoutubeTitleForYvonne
                 }
 
                 //cmbLanguage.SelectedItem = ChromeLanguage;
+            }
+        }
+
+        private void txtTextSeparator_TextChanged(object sender, EventArgs e)
+        {
+            TextSeparator = txtTextSeparator.Text;
+        }
+
+        private void numMinimumTextLength_ValueChanged(object sender, EventArgs e)
+        {
+            MinimumTextLength = numMinimumTextLength.Value;
+        }
+
+        private void cmbTextSeparator_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TextSeparatorType = cmbTextSeparator.SelectedItem?.ToString();
+
+            if (string.IsNullOrEmpty(TextSeparatorType))
+            {
+                TextSeparatorType = frmMain.DefaultTextSeparatorType;
+            }
+
+            if (TextSeparatorType == "None")
+            {
+                txtTextSeparator.Enabled = false;
+                numMinimumTextLength.Enabled = false;
+            }
+            else if (TextSeparatorType == "Space Padding")
+            {
+                txtTextSeparator.Enabled = false;
+                numMinimumTextLength.Enabled = true;
+            }
+            else if (TextSeparatorType == "Custom")
+            {
+                txtTextSeparator.Enabled = true;
+                numMinimumTextLength.Enabled = false;
             }
         }
     }
