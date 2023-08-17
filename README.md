@@ -52,7 +52,15 @@ If you close the selected YouTube tab or move it to a different window, come bac
 
 To configure the application, click the "Options" button in the top right.
 
-You can specify the Refresh Interval in seconds, as well as the output path and filename of the .txt file which will be written to.
+You can specify the following options:
+
+- **Chrome Language:** This is the language of your Google Chrome. Needed for the application to be able to scan the window for tabs. Defaults to the language of your Windows.
+- **Refresh Interval (secs):** How often, in seconds, that the application will check the tab to see if the title has changed. Defaults to 5 seconds.
+- **Output Filename:** The path to the .txt file which will be written to with the Youtube title, to be selected in Streamlabs OBS.
+- **Text Separator options:** There are 3 separator types - "None" (default), "Space Padding" or "Custom".
+  - "None" will add a single space at the end of the text, to create a space for looping text.
+  - "Space Padding" allows you to set a minimum text length. Additional spaces will be added to pad the text to reach the specified minimum length. Adds a single space if the title is longer than the minimum length. Defaults to 40.
+  - "Custom" allows you to set custom text which will appear at the end of the text, to allow you to specify something custom in the middle of the text looping. Defaults to " ~ ".
 
 These settings are stored in `YoutubeTitleForYvvone.exe.config` in the application's folder.
 
